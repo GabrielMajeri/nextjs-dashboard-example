@@ -1,3 +1,5 @@
+'use server';
+
 import {
   CustomerField,
   CustomersTableType,
@@ -176,17 +178,17 @@ export async function fetchInvoiceById(id: string) {
   noStore();
 
   try {
-    const data = await sql<InvoiceForm>`
+    const data = await sql`
       SELECT
         invoices.id,
         invoices.customer_id,
         invoices.amount,
         invoices.status
       FROM invoices
-      WHERE invoices.id = ${id};
+      WHERE invoices.id = ${id}::uuid;
     `;
 
-    const invoice = data.rows.map((invoice) => ({
+    const invoice = (data as InvoiceForm[]).map((invoice) => ({
       ...invoice,
       // Convert amount from cents to dollars
       amount: invoice.amount / 100,
@@ -203,7 +205,7 @@ export async function fetchCustomers() {
   noStore();
 
   try {
-    const data = await sql<CustomerField>`
+    const data = await sql`
       SELECT
         id,
         name
@@ -211,7 +213,7 @@ export async function fetchCustomers() {
       ORDER BY name ASC
     `;
 
-    const customers = data.rows;
+    const customers = data as CustomerField[];
     return customers;
   } catch (err) {
     console.error('Database Error:', err);
