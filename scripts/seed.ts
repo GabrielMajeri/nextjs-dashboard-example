@@ -1,13 +1,14 @@
-const { db } = require('@vercel/postgres');
-const {
+import {
   invoices,
   customers,
   revenue,
   users,
-} = require('../app/lib/placeholder-data.js');
-const bcrypt = require('bcrypt');
+} from '@/app/lib/placeholder-data.js';
+import prisma from '@/app/lib/prisma';
+import Prisma from '@prisma/client';
+import bcrypt from 'bcrypt';
 
-async function seedUsers(client) {
+async function seedUsers(client: any) {
   try {
     await client.sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
     // Create the "users" table if it doesn't exist
@@ -28,7 +29,7 @@ async function seedUsers(client) {
         const hashedPassword = await bcrypt.hash(user.password, 10);
         return client.sql`
         INSERT INTO users (id, name, email, password)
-        VALUES (${user.id}, ${user.name}, ${user.email}, ${hashedPassword})
+        VALUES (${user.id}::uuid, ${user.name}, ${user.email}, ${hashedPassword})
         ON CONFLICT (id) DO NOTHING;
       `;
       }),
@@ -46,7 +47,7 @@ async function seedUsers(client) {
   }
 }
 
-async function seedInvoices(client) {
+async function seedInvoices(client: any) {
   try {
     await client.sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
 
@@ -68,7 +69,7 @@ async function seedInvoices(client) {
       invoices.map(
         (invoice) => client.sql`
         INSERT INTO invoices (customer_id, amount, status, date)
-        VALUES (${invoice.customer_id}, ${invoice.amount}, ${invoice.status}, ${invoice.date})
+        VALUES (${invoice.customer_id}::uuid, ${invoice.amount}, ${invoice.status}, ${invoice.date}::date)
         ON CONFLICT (id) DO NOTHING;
       `,
       ),
@@ -86,7 +87,7 @@ async function seedInvoices(client) {
   }
 }
 
-async function seedCustomers(client) {
+async function seedCustomers(client: any) {
   try {
     await client.sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
 
@@ -107,7 +108,7 @@ async function seedCustomers(client) {
       customers.map(
         (customer) => client.sql`
         INSERT INTO customers (id, name, email, image_url)
-        VALUES (${customer.id}, ${customer.name}, ${customer.email}, ${customer.image_url})
+        VALUES (${customer.id}::uuid, ${customer.name}, ${customer.email}, ${customer.image_url})
         ON CONFLICT (id) DO NOTHING;
       `,
       ),
@@ -125,7 +126,7 @@ async function seedCustomers(client) {
   }
 }
 
-async function seedRevenue(client) {
+async function seedRevenue(client: any) {
   try {
     // Create the "revenue" table if it doesn't exist
     const createTable = await client.sql`
@@ -161,7 +162,11 @@ async function seedRevenue(client) {
 }
 
 async function main() {
-  const client = await db.connect();
+  const client = {
+    sql: async (rawSql: TemplateStringsArray, ...values: string[]) =>
+      await prisma.$queryRaw(rawSql, ...values),
+    end: async () => {},
+  };
 
   await seedUsers(client);
   await seedCustomers(client);
