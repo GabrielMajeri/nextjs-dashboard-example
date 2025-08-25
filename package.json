@@ -8,6 +8,7 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "types:check": "tsc --noEmit",
     "drizzle:migrate": "drizzle-kit migrate",
     "seed": "dotenvx run --convention=nextjs -- tsx ./src/scripts/seed.ts",
     "start": "next start"

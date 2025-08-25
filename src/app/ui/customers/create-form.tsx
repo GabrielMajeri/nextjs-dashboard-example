@@ -5,10 +5,10 @@ import { useActionState } from "react";
 import Link from "next/link";
 
 import { Button } from "@/app/ui/button";
-import { createCustomer } from "@/app/lib/actions";
+import { CustomerFormState, createCustomer } from "@/app/lib/actions";
 
 export default function CreateCustomerForm() {
-  const initialState = { message: null, errors: {} };
+  const initialState: CustomerFormState = { message: null, errors: {} };
   const [state, formAction] = useActionState(createCustomer, initialState);
 
   return (

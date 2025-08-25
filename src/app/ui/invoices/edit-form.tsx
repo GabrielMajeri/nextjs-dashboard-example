@@ -9,7 +9,7 @@ import {
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { Button } from "@/app/ui/button";
-import { updateInvoice } from "@/app/lib/actions";
+import { InvoiceFormState, updateInvoice } from "@/app/lib/actions";
 import { useActionState } from "react";
 
 export default function EditInvoiceForm({
@@ -21,7 +21,7 @@ export default function EditInvoiceForm({
 }) {
   const updateInvoiceWithId = updateInvoice.bind(null, invoice.id);
 
-  const initialState = { message: null, errors: {} };
+  const initialState: InvoiceFormState = { message: null, errors: {} };
   const [state, dispatch] = useActionState(updateInvoiceWithId, initialState);
 
   return (
@@ -37,7 +37,7 @@ export default function EditInvoiceForm({
               id="customer"
               name="customerId"
               className="peer block w-full cursor-pointer rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
-              defaultValue={invoice.customer_id}
+              defaultValue={invoice.customerId}
               aria-describedby="customer-error"
             >
               <option value="" disabled>

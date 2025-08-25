@@ -53,7 +53,19 @@ export async function authenticate(
   }
 }
 
-export async function createCustomer(prevState: State, formData: FormData) {
+export type CustomerFormState = {
+  errors?: {
+    name?: { errors: string[] };
+    email?: { errors: string[] };
+    imageUrl?: { errors: string[] };
+  };
+  message?: string | null;
+};
+
+export async function createCustomer(
+  prevState: CustomerFormState,
+  formData: FormData,
+): Promise<CustomerFormState> {
   const validatedFields = CreateCustomer.safeParse({
     name: formData.get("name"),
     email: formData.get("email"),
@@ -85,10 +97,9 @@ export async function createCustomer(prevState: State, formData: FormData) {
 
 export async function updateCustomer(
   id: string,
-  prevState: State,
+  prevState: CustomerFormState,
   formData: FormData,
-) {
-  console.log(formData);
+): Promise<CustomerFormState> {
   const validatedFields = UpdateCustomer.safeParse({
     name: formData.get("name"),
     email: formData.get("email"),
@@ -106,7 +117,6 @@ export async function updateCustomer(
   const { name, email, imageUrl } = validatedFields.data;
 
   try {
-    console.log("Updating...");
     await db
       .update(customers)
       .set({ name, email, imageUrl })
@@ -122,7 +132,7 @@ export async function updateCustomer(
   redirect("/dashboard/customers");
 }
 
-export async function deleteCustomer(id: string) {
+export async function deleteCustomer(id: string): Promise<CustomerFormState> {
   try {
     await db.delete(customers).where(eq(customers.id, id));
     revalidatePath("/dashboard/customers");
@@ -135,16 +145,19 @@ export async function deleteCustomer(id: string) {
   }
 }
 
-export type State = {
+export type InvoiceFormState = {
   errors?: {
-    customerId?: string[];
-    amount?: string[];
-    status?: string[];
+    customerId?: { errors: string[] };
+    amount?: { errors: string[] };
+    status?: { errors: string[] };
   };
   message?: string | null;
 };
 
-export async function createInvoice(prevState: State, formData: FormData) {
+export async function createInvoice(
+  prevState: InvoiceFormState,
+  formData: FormData,
+): Promise<InvoiceFormState> {
   const validatedFields = CreateInvoice.safeParse({
     customerId: formData.get("customerId"),
     amount: formData.get("amount"),
@@ -181,9 +194,9 @@ export async function createInvoice(prevState: State, formData: FormData) {
 
 export async function updateInvoice(
   id: string,
-  prevState: State,
+  prevState: InvoiceFormState,
   formData: FormData,
-) {
+): Promise<InvoiceFormState> {
   const validatedFields = UpdateInvoice.safeParse({
     customerId: formData.get("customerId"),
     amount: formData.get("amount"),
@@ -218,7 +231,9 @@ export async function updateInvoice(
   redirect("/dashboard/invoices");
 }
 
-export async function deleteInvoice(id: string) {
+export async function deleteInvoice(
+  id: string,
+): Promise<InvoiceFormState | undefined> {
   try {
     await db.delete(invoices).where(eq(invoices.id, id));
     revalidatePath("/dashboard/invoices");

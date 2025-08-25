@@ -26,7 +26,9 @@ export function UpdateCustomer({ id }: { id: string }) {
 }
 
 export function DeleteCustomer({ id }: { id: string }) {
-  const deleteCustomerWithId = deleteCustomer.bind(null, id);
+  const deleteCustomerWithId = async () => {
+    await deleteCustomer(id);
+  };
 
   return (
     <form action={deleteCustomerWithId}>
