@@ -29,7 +29,7 @@ export async function fetchRevenue() {
     // Don't do this in production :)
 
     // console.log('Fetching revenue data...');
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    // await new Promise((resolve) => setTimeout(resolve, 2000));
 
     const data = (await sql`SELECT * FROM revenue`) as Revenue[];
 
@@ -46,7 +46,7 @@ export async function fetchLatestInvoices() {
   noStore();
 
   try {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    // await new Promise((resolve) => setTimeout(resolve, 1000));
 
     const data = (await sql`
       SELECT invoices.amount, customers.name, customers.image_url, customers.email, invoices.id
@@ -70,7 +70,7 @@ export async function fetchCardData() {
   noStore();
 
   try {
-    await new Promise((resolve) => setTimeout(resolve, 2500));
+    // await new Promise((resolve) => setTimeout(resolve, 2500));
 
     // You can probably combine these into a single SQL query
     // However, we are intentionally splitting them to demonstrate
@@ -87,18 +87,18 @@ export async function fetchCardData() {
       customerCountPromise,
       invoiceStatusPromise,
     ])) as [
-      { count: BigInt }[],
-      { count: BigInt }[],
-      { paid: BigInt; pending: BigInt }[],
+      { count: bigint }[],
+      { count: bigint }[],
+      { paid: bigint; pending: bigint }[],
     ];
 
     const numberOfInvoices = Number(data[0][0].count ?? "0");
     const numberOfCustomers = Number(data[1][0].count ?? "0");
     const totalPaidInvoices = formatCurrency(
-      !!data[2][0].paid ? Number(data[2][0].paid) : 0,
+      data[2][0].paid ? Number(data[2][0].paid) : 0,
     );
     const totalPendingInvoices = formatCurrency(
-      !!data[2][0].pending ? Number(data[2][0].pending) : 0,
+      data[2][0].pending ? Number(data[2][0].pending) : 0,
     );
 
     return {
