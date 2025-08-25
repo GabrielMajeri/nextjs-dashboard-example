@@ -9,7 +9,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "drizzle:migrate": "drizzle-kit migrate",
-    "seed": "dotenvx run --convention=nextjs -- tsx scripts/seed.ts",
+    "seed": "dotenvx run --convention=nextjs -- tsx ./src/scripts/seed.ts",
     "start": "next start"
   },
   "dependencies": {
