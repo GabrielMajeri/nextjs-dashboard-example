@@ -3,10 +3,10 @@ import {
   customers,
   revenue,
   users,
-} from '@/app/lib/placeholder-data.js';
-import prisma from '@/app/lib/prisma';
-import Prisma from '@prisma/client';
-import bcrypt from 'bcrypt';
+} from "@/app/lib/placeholder-data.js";
+import prisma from "@/app/lib/prisma";
+import Prisma from "@prisma/client";
+import bcrypt from "bcrypt";
 
 async function seedUsers(client: any) {
   try {
@@ -42,7 +42,7 @@ async function seedUsers(client: any) {
       users: insertedUsers,
     };
   } catch (error) {
-    console.error('Error seeding users:', error);
+    console.error("Error seeding users:", error);
     throw error;
   }
 }
@@ -82,7 +82,7 @@ async function seedInvoices(client: any) {
       invoices: insertedInvoices,
     };
   } catch (error) {
-    console.error('Error seeding invoices:', error);
+    console.error("Error seeding invoices:", error);
     throw error;
   }
 }
@@ -121,7 +121,7 @@ async function seedCustomers(client: any) {
       customers: insertedCustomers,
     };
   } catch (error) {
-    console.error('Error seeding customers:', error);
+    console.error("Error seeding customers:", error);
     throw error;
   }
 }
@@ -156,7 +156,7 @@ async function seedRevenue(client: any) {
       revenue: insertedRevenue,
     };
   } catch (error) {
-    console.error('Error seeding revenue:', error);
+    console.error("Error seeding revenue:", error);
     throw error;
   }
 }
@@ -178,7 +178,7 @@ async function main() {
 
 main().catch((err) => {
   console.error(
-    'An error occurred while attempting to seed the database:',
+    "An error occurred while attempting to seed the database:",
     err,
   );
 });
