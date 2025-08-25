@@ -7,6 +7,7 @@ import bcrypt from "bcrypt";
 
 import { z } from "zod";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const sql = async (query: TemplateStringsArray, ...values: any[]) =>
   await prisma.$queryRaw(query, ...values);
 

@@ -1,3 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+import bcrypt from "bcrypt";
+
 import {
   invoices,
   customers,
@@ -5,10 +9,13 @@ import {
   users,
 } from "@/app/lib/placeholder-data.js";
 import prisma from "@/app/lib/prisma";
-import Prisma from "@prisma/client";
-import bcrypt from "bcrypt";
 
-async function seedUsers(client: any) {
+type SqlClient = {
+  sql: (rawSql: TemplateStringsArray, ...values: any[]) => Promise<unknown>;
+  end: () => Promise<unknown>;
+};
+
+async function seedUsers(client: SqlClient) {
   try {
     await client.sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
     // Create the "users" table if it doesn't exist
@@ -47,7 +54,7 @@ async function seedUsers(client: any) {
   }
 }
 
-async function seedInvoices(client: any) {
+async function seedInvoices(client: SqlClient) {
   try {
     await client.sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
 
@@ -87,7 +94,7 @@ async function seedInvoices(client: any) {
   }
 }
 
-async function seedCustomers(client: any) {
+async function seedCustomers(client: SqlClient) {
   try {
     await client.sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
 
@@ -126,7 +133,7 @@ async function seedCustomers(client: any) {
   }
 }
 
-async function seedRevenue(client: any) {
+async function seedRevenue(client: SqlClient) {
   try {
     // Create the "revenue" table if it doesn't exist
     const createTable = await client.sql`
@@ -162,8 +169,8 @@ async function seedRevenue(client: any) {
 }
 
 async function main() {
-  const client = {
-    sql: async (rawSql: TemplateStringsArray, ...values: string[]) =>
+  const client: SqlClient = {
+    sql: async (rawSql: TemplateStringsArray, ...values: any[]) =>
       await prisma.$queryRaw(rawSql, ...values),
     end: async () => {},
   };
