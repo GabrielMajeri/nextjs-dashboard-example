@@ -2,12 +2,12 @@
 
 import { z } from "zod";
 
-import prisma from "./prisma";
-
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { signIn } from "@/auth";
 import { AuthError } from "next-auth";
+import { db } from "@/db";
+import { sql } from "drizzle-orm";
 
 const FormSchema = z.object({
   id: z.string(),
@@ -22,10 +22,6 @@ const FormSchema = z.object({
 const CreateInvoice = FormSchema.omit({ id: true, date: true });
 
 const UpdateInvoice = FormSchema.omit({ id: true, date: true });
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const sql = async (query: TemplateStringsArray, ...values: any[]) =>
-  await prisma.$executeRaw(query, ...values);
 
 export async function authenticate(
   prevState: string | undefined,
@@ -76,10 +72,10 @@ export async function createInvoice(prevState: State, formData: FormData) {
   const date = new Date().toISOString().split("T")[0];
 
   try {
-    await sql`
-    INSERT INTO invoices (customer_id, amount, status, date)
-    VALUES (${customerId}::uuid, ${amountInCents}, ${status}, ${date}::date)
-  `;
+    await db.execute(sql`
+      INSERT INTO invoices (customer_id, amount, status, date)
+      VALUES (${customerId}::uuid, ${amountInCents}, ${status}, ${date}::date)
+    `);
   } catch (error) {
     console.error("Database error:", error);
     return {
@@ -115,11 +111,11 @@ export async function updateInvoice(
   const amountInCents = amount * 100;
 
   try {
-    await sql`
-    UPDATE invoices
-    SET customer_id = ${customerId}::uuid, amount = ${amountInCents}, status = ${status}
-    WHERE id = ${id}::uuid
-  `;
+    await db.execute(sql`
+      UPDATE invoices
+      SET customer_id = ${customerId}::uuid, amount = ${amountInCents}, status = ${status}
+      WHERE id = ${id}::uuid
+    `);
   } catch (error) {
     console.error("Database error:", error);
     return {
@@ -133,7 +129,7 @@ export async function updateInvoice(
 
 export async function deleteInvoice(id: string) {
   try {
-    await sql`DELETE FROM invoices WHERE id = ${id}::uuid`;
+    await db.execute(sql`DELETE FROM invoices WHERE id = ${id}::uuid`);
     revalidatePath("/dashboard/invoices");
     return { message: "Deleted invoice" };
   } catch (error) {

@@ -15,13 +15,17 @@ export const metadata: Metadata = {
 export default async function Page({
   searchParams,
 }: {
-  searchParams?: {
-    query?: string;
-    page?: string;
-  };
+  searchParams: Promise<
+    | {
+        query?: string;
+        page?: string;
+      }
+    | undefined
+  >;
 }) {
-  const query = searchParams?.query || "";
-  const currentPage = Number(searchParams?.page) || 1;
+  const awaitedSearchParams = await searchParams;
+  const query = awaitedSearchParams?.query || "";
+  const currentPage = Number(awaitedSearchParams?.page) || 1;
   const totalPages = await fetchInvoicesPages(query);
 
   return (

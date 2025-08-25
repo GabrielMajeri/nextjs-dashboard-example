@@ -27,15 +27,17 @@ export default async function InvoicesTable({
                   <div>
                     <div className="mb-2 flex items-center">
                       <Image
-                        src={invoice.image_url}
+                        src={invoice.customer.imageUrl}
                         className="mr-2 rounded-full"
                         width={28}
                         height={28}
-                        alt={`${invoice.name}'s profile picture`}
+                        alt={`${invoice.customer.name}'s profile picture`}
                       />
-                      <p>{invoice.name}</p>
+                      <p>{invoice.customer.name}</p>
                     </div>
-                    <p className="text-sm text-gray-500">{invoice.email}</p>
+                    <p className="text-sm text-gray-500">
+                      {invoice.customer.email}
+                    </p>
                   </div>
                   <InvoiceStatus status={invoice.status} />
                 </div>
@@ -86,17 +88,17 @@ export default async function InvoicesTable({
                   <td className="py-3 pr-3 pl-6 whitespace-nowrap">
                     <div className="flex items-center gap-3">
                       <Image
-                        src={invoice.image_url}
+                        src={invoice.customer.imageUrl}
                         className="rounded-full"
                         width={28}
                         height={28}
-                        alt={`${invoice.name}'s profile picture`}
+                        alt={`${invoice.customer.name}'s profile picture`}
                       />
-                      <p>{invoice.name}</p>
+                      <p>{invoice.customer.name}</p>
                     </div>
                   </td>
                   <td className="px-3 py-3 whitespace-nowrap">
-                    {invoice.email}
+                    {invoice.customer.email}
                   </td>
                   <td className="px-3 py-3 whitespace-nowrap">
                     {formatCurrency(invoice.amount)}

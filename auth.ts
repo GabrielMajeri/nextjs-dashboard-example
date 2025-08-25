@@ -1,20 +1,18 @@
 import NextAuth from "next-auth";
 import { authConfig } from "./auth.config";
 import Credentials from "next-auth/providers/credentials";
-import prisma from "./app/lib/prisma";
 import type { User } from "@/app/lib/definitions";
 import bcrypt from "bcrypt";
 
 import { z } from "zod";
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const sql = async (query: TemplateStringsArray, ...values: any[]) =>
-  await prisma.$queryRaw(query, ...values);
+import { db } from "./db";
+import { sql } from "drizzle-orm";
 
 async function getUser(email: string): Promise<User | undefined> {
   try {
-    const user =
-      (await sql`SELECT * FROM users WHERE email=${email}`) as User[];
+    const user = (
+      await db.execute(sql`SELECT * FROM users WHERE email=${email}`)
+    ).rows as User[];
     return user[0];
   } catch (error) {
     console.error("Failed to fetch user:", error);
