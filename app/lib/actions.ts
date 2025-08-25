@@ -1,13 +1,15 @@
 "use server";
 
-import { z } from "zod";
-
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { signIn } from "@/auth";
 import { AuthError } from "next-auth";
+import { eq } from "drizzle-orm";
+import { z } from "zod";
+
+import { signIn } from "@/auth";
+
 import { db } from "@/db";
-import { sql } from "drizzle-orm";
+import { invoices } from "@/db/schema";
 
 const FormSchema = z.object({
   id: z.string(),
@@ -72,10 +74,9 @@ export async function createInvoice(prevState: State, formData: FormData) {
   const date = new Date().toISOString().split("T")[0];
 
   try {
-    await db.execute(sql`
-      INSERT INTO invoices (customer_id, amount, status, date)
-      VALUES (${customerId}::uuid, ${amountInCents}, ${status}, ${date}::date)
-    `);
+    await db
+      .insert(invoices)
+      .values({ customerId, amount: amountInCents, status, date });
   } catch (error) {
     console.error("Database error:", error);
     return {
@@ -111,11 +112,10 @@ export async function updateInvoice(
   const amountInCents = amount * 100;
 
   try {
-    await db.execute(sql`
-      UPDATE invoices
-      SET customer_id = ${customerId}::uuid, amount = ${amountInCents}, status = ${status}
-      WHERE id = ${id}::uuid
-    `);
+    await db
+      .update(invoices)
+      .set({ customerId, amount: amountInCents, status })
+      .where(eq(invoices.id, id));
   } catch (error) {
     console.error("Database error:", error);
     return {
@@ -129,7 +129,7 @@ export async function updateInvoice(
 
 export async function deleteInvoice(id: string) {
   try {
-    await db.execute(sql`DELETE FROM invoices WHERE id = ${id}::uuid`);
+    await db.delete(invoices).where(eq(invoices.id, id));
     revalidatePath("/dashboard/invoices");
     return { message: "Deleted invoice" };
   } catch (error) {

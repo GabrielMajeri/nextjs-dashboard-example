@@ -1,19 +1,27 @@
+import { eq } from "drizzle-orm";
+import { z } from "zod";
+
 import NextAuth from "next-auth";
-import { authConfig } from "./auth.config";
 import Credentials from "next-auth/providers/credentials";
-import type { User } from "@/app/lib/definitions";
+
 import bcrypt from "bcrypt";
 
-import { z } from "zod";
-import { db } from "./db";
-import { sql } from "drizzle-orm";
+import type { User } from "@/app/lib/definitions";
+
+import { authConfig } from "./auth.config";
+
+import { db } from "@/db";
+import { users } from "@/db/schema";
 
 async function getUser(email: string): Promise<User | undefined> {
   try {
-    const user = (
-      await db.execute(sql`SELECT * FROM users WHERE email=${email}`)
-    ).rows as User[];
-    return user[0];
+    const user = await db.query.users.findFirst({
+      where: eq(users.email, email),
+    });
+    if (!user) {
+      throw "not found";
+    }
+    return user;
   } catch (error) {
     console.error("Failed to fetch user:", error);
     throw new Error("Failed to fetch user.");
