@@ -143,6 +143,23 @@ export async function fetchFilteredInvoices(
   }
 }
 
+export async function fetchCustomersPages(query: string) {
+  query = `%${query}%`;
+
+  try {
+    const count = await db.$count(
+      customersTable,
+      or(ilike(customersTable.name, query), ilike(customersTable.email, query)),
+    );
+
+    const totalPages = Math.ceil(count / ITEMS_PER_PAGE);
+    return totalPages;
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Failed to fetch total number of invoices.");
+  }
+}
+
 export async function fetchInvoicesPages(query: string) {
   try {
     query = `%${query}%`;
@@ -212,9 +229,14 @@ export async function fetchCustomers() {
   }
 }
 
-export async function fetchFilteredCustomers(query: string) {
+export async function fetchFilteredCustomers(
+  query: string,
+  currentPage: number,
+) {
+  query = `%${query}%`;
+  const offset = (currentPage - 1) * ITEMS_PER_PAGE;
+
   try {
-    query = `%${query}%`;
     const customersData: CustomersTableType[] = await db
       .select({
         id: customersTable.id,
@@ -245,7 +267,9 @@ export async function fetchFilteredCustomers(query: string) {
         customersTable.email,
         customersTable.imageUrl,
       )
-      .orderBy(asc(customersTable.name));
+      .orderBy(asc(customersTable.name))
+      .limit(ITEMS_PER_PAGE)
+      .offset(offset);
 
     const customers = customersData.map((customer) => ({
       ...customer,
@@ -257,6 +281,24 @@ export async function fetchFilteredCustomers(query: string) {
   } catch (err) {
     console.error("Database Error:", err);
     throw new Error("Failed to fetch customer table.");
+  }
+}
+
+export async function fetchCustomerById(id: string) {
+  try {
+    const customer = await db.query.customers.findFirst({
+      where: eq(customersTable.id, id),
+    });
+    console.log("Customer is: %o", customer);
+
+    if (!customer) {
+      throw "not found";
+    }
+
+    return customer;
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Failed to fetch customer.");
   }
 }
 

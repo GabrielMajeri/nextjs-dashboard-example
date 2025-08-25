@@ -6,8 +6,8 @@
     "build": "next build",
     "dev": "next dev",
     "lint": "eslint .",
-    "prettier": "prettier --write .",
-    "prettier:check": "prettier --check .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "drizzle:migrate": "drizzle-kit migrate",
     "seed": "dotenvx run --convention=nextjs -- tsx scripts/seed.ts",
     "start": "next start"

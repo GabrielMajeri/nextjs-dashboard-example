@@ -9,9 +9,19 @@ import { z } from "zod";
 import { signIn } from "@/auth";
 
 import { db } from "@/db";
-import { invoices } from "@/db/schema";
+import { customers, invoices } from "@/db/schema";
 
-const FormSchema = z.object({
+const CustomerFormSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  email: z.email(),
+  imageUrl: z.string(),
+});
+
+const CreateCustomer = CustomerFormSchema.omit({ id: true });
+const UpdateCustomer = CustomerFormSchema.omit({ id: true });
+
+const InvoiceFormSchema = z.object({
   id: z.string(),
   customerId: z.string("Please select a customer."),
   amount: z.coerce
@@ -21,9 +31,8 @@ const FormSchema = z.object({
   date: z.string(),
 });
 
-const CreateInvoice = FormSchema.omit({ id: true, date: true });
-
-const UpdateInvoice = FormSchema.omit({ id: true, date: true });
+const CreateInvoice = InvoiceFormSchema.omit({ id: true, date: true });
+const UpdateInvoice = InvoiceFormSchema.omit({ id: true, date: true });
 
 export async function authenticate(
   prevState: string | undefined,
@@ -41,6 +50,88 @@ export async function authenticate(
       }
     }
     throw error;
+  }
+}
+
+export async function createCustomer(prevState: State, formData: FormData) {
+  const validatedFields = CreateCustomer.safeParse({
+    name: formData.get("name"),
+    email: formData.get("email"),
+    imageUrl: formData.get("imageUrl"),
+  });
+
+  // If form validation fails, return errors early. Otherwise, continue.
+  if (!validatedFields.success) {
+    return {
+      errors: z.treeifyError(validatedFields.error).properties,
+      message: "Missing fields. Failed to create customer.",
+    };
+  }
+
+  const { name, email, imageUrl } = validatedFields.data;
+
+  try {
+    await db.insert(customers).values({ name, email, imageUrl });
+  } catch (error) {
+    console.error("Database error:", error);
+    return {
+      message: "Database error: failed to create customer",
+    };
+  }
+
+  revalidatePath("/dashboard/customers");
+  redirect("/dashboard/customers");
+}
+
+export async function updateCustomer(
+  id: string,
+  prevState: State,
+  formData: FormData,
+) {
+  console.log(formData);
+  const validatedFields = UpdateCustomer.safeParse({
+    name: formData.get("name"),
+    email: formData.get("email"),
+    imageUrl: formData.get("imageUrl"),
+  });
+
+  // If form validation fails, return errors early. Otherwise, continue.
+  if (!validatedFields.success) {
+    return {
+      errors: z.treeifyError(validatedFields.error).properties,
+      message: "Missing fields. Failed to update customer.",
+    };
+  }
+
+  const { name, email, imageUrl } = validatedFields.data;
+
+  try {
+    console.log("Updating...");
+    await db
+      .update(customers)
+      .set({ name, email, imageUrl })
+      .where(eq(customers.id, id));
+  } catch (error) {
+    console.error("Database error:", error);
+    return {
+      message: "Database error: failed to update customer",
+    };
+  }
+
+  revalidatePath("/dashboard/customers");
+  redirect("/dashboard/customers");
+}
+
+export async function deleteCustomer(id: string) {
+  try {
+    await db.delete(customers).where(eq(customers.id, id));
+    revalidatePath("/dashboard/customers");
+    return { message: "Deleted customer" };
+  } catch (error) {
+    console.error("Database error:", error);
+    return {
+      message: "Database error: failed to delete customer",
+    };
   }
 }
 
@@ -63,7 +154,7 @@ export async function createInvoice(prevState: State, formData: FormData) {
   // If form validation fails, return errors early. Otherwise, continue.
   if (!validatedFields.success) {
     return {
-      errors: validatedFields.error.flatten().fieldErrors,
+      errors: z.treeifyError(validatedFields.error).properties,
       message: "Missing fields. Failed to create invoice.",
     };
   }
@@ -102,7 +193,7 @@ export async function updateInvoice(
   // If form validation fails, return errors early. Otherwise, continue.
   if (!validatedFields.success) {
     return {
-      errors: validatedFields.error.flatten().fieldErrors,
+      errors: z.treeifyError(validatedFields.error).properties,
       message: "Missing fields. Failed to update invoice.",
     };
   }

@@ -39,9 +39,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "users_email_key": {
-          "columns": [
-            "email"
-          ],
+          "columns": ["email"],
           "nullsNotDistinct": false,
           "name": "users_email_key"
         }
@@ -154,9 +152,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "revenue_month_key": {
-          "columns": [
-            "month"
-          ],
+          "columns": ["month"],
           "nullsNotDistinct": false,
           "name": "revenue_month_key"
         }
