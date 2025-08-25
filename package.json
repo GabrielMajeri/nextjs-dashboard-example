@@ -8,9 +8,7 @@
     "lint": "eslint .",
     "prettier": "prettier --write .",
     "prettier:check": "prettier --check .",
-    "prisma:generate": "prisma generate",
-    "prisma:push": "prisma db push",
-    "prisma:validate": "prisma validate",
+    "drizzle:migrate": "drizzle-kit migrate",
     "seed": "dotenvx run --convention=nextjs -- tsx scripts/seed.ts",
     "start": "next start"
   },
