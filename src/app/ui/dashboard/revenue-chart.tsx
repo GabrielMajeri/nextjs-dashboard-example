@@ -1,3 +1,4 @@
+import { connection } from "next/server";
 import { generateYAxis } from "@/app/lib/utils";
 import { CalendarIcon } from "@heroicons/react/24/outline";
 import { lusitana } from "@/app/ui/fonts";
@@ -10,6 +11,8 @@ import { fetchRevenue } from "@/app/lib/data";
 // https://airbnb.io/visx/
 
 export default async function RevenueChart() {
+  await connection();
+
   const chartHeight = 350;
 
   const revenue = await fetchRevenue();

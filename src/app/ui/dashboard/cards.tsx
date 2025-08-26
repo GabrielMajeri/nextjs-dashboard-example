@@ -1,3 +1,4 @@
+import { connection } from "next/server";
 import {
   BanknotesIcon,
   ClockIcon,
@@ -15,6 +16,8 @@ const iconMap = {
 };
 
 export default async function CardWrapper() {
+  await connection();
+
   const {
     totalPaidInvoices,
     totalPendingInvoices,
