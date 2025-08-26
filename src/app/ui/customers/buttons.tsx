@@ -27,6 +27,7 @@ export function UpdateCustomer({ id }: { id: string }) {
 
 export function DeleteCustomer({ id }: { id: string }) {
   const deleteCustomerWithId = async () => {
+    "use server";
     await deleteCustomer(id);
   };
 

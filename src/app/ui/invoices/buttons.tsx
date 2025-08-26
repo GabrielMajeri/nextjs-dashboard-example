@@ -27,6 +27,7 @@ export function UpdateInvoice({ id }: { id: string }) {
 
 export function DeleteInvoice({ id }: { id: string }) {
   const deleteInvoiceWithId = async () => {
+    "use server";
     await deleteInvoice(id);
   };
 
